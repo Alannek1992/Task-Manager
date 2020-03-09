@@ -16,9 +16,30 @@ router.post("/tasks", auth, async (req, res) => {
   }
 });
 
+// GET /tasks?completed=true
+// GET /tasks?limit=10&skip=0
+// GET /tasks?sortBy=createdAt_desc
 router.get("/tasks", auth, async (req, res) => {
   try {
-    await req.user.populate("tasks").execPopulate();
+    const match = {};
+    const [sortColumn, direction] = req.query.sortBy.split("_");
+
+    if (req.query.completed === "completed") {
+      match.completed = req.query.completed === "true";
+    }
+    await req.user
+      .populate({
+        path: "tasks",
+        match,
+        options: {
+          limit: parseInt(req.query.limit),
+          skip: parseInt(req.query.skip),
+          sort: {
+            [sortColumn]: direction === "desc" ? -1 : 1
+          }
+        }
+      })
+      .execPopulate();
     res.send(req.user.tasks);
   } catch (error) {
     res.status(500).send(error);
