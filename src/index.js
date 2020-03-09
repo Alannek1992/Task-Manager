@@ -6,24 +6,22 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
-
 app.use(userRouter, taskRouter);
-
 app.listen(port, () => {
   console.log("Server is up on: " + port);
 });
 
-const bcrypt = require("bcryptjs");
+const Task = require("./models/task");
+const User = require("./models/user");
 
-const myFunction = async () => {
-  const password = "Ales12345";
-  const hashedPassword = await bcrypt.hash(password, 8);
+const main = async () => {
+  // const task = await Task.findById("5e62360dde278715f480e479");
+  // await task.populate("owner").execPopulate();
+  // console.log(task);
 
-  console.log(password);
-  console.log(hashedPassword);
-
-  const isMatch = await bcrypt.compare("Ales12345x", hashedPassword);
-  console.log(isMatch);
+  const user = await User.findById("5e6235332820ef4e44b744c1");
+  await user.populate("tasks").execPopulate();
+  console.log(user.tasks);
 };
 
-myFunction();
+main();
